@@ -9,7 +9,7 @@ public interface TransactionDao {
 
     List<Transaction> getAllTransactions();
 
-    List<Transaction> getTransactionsByClientId(Long clientId);
+    List<Transaction> getTransactionsByAccountId(Long accountId);
 
     String addTransaction(Transaction transaction);
 }

@@ -23,7 +23,7 @@ public class TransactionController {
 
     @GetMapping("/client/{clientId}")
     public List<Transaction> getTransactionsByClientId(@PathVariable Long clientId) {
-        return transactionDao.getTransactionsByClientId(clientId);
+        return transactionDao.getTransactionsByAccountId(clientId);
     }
 
     @PostMapping
@@ -35,4 +35,6 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
     }
+
+
 }

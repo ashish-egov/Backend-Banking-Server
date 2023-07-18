@@ -8,7 +8,8 @@ public class Transaction {
     private Long transactionId;
     private char type;
     private BigDecimal amount;
-    private Long clientId;
+    private Long fromAccountId;
+    private Long toAccountId;
     private LocalDateTime dateTime;
 
     public Long getTransactionId() {
@@ -35,12 +36,20 @@ public class Transaction {
         this.amount = amount;
     }
 
-    public Long getClientId() {
-        return clientId;
+    public Long getFromAccountId() {
+        return fromAccountId;
     }
 
-    public void setClientId(Long clientId) {
-        this.clientId = clientId;
+    public void setFromAccountId(Long fromAccountId) {
+        this.fromAccountId = fromAccountId;
+    }
+
+    public Long getToAccountId() {
+        return toAccountId;
+    }
+
+    public void setToAccountId(Long toAccountId) {
+        this.toAccountId = toAccountId;
     }
 
     public LocalDateTime getDateTime() {
