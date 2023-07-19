@@ -1,12 +1,12 @@
-package com.example.BackendBankingServer.dao;
+package com.example.BackendBankingService.dao;
 
-import com.example.BackendBankingServer.model.Client;
+import com.example.BackendBankingService.model.Client;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,7 +24,7 @@ public class ClientDaoImpl implements ClientDao {
                 + "name VARCHAR(50) NOT NULL,"
                 + "phone VARCHAR(20) NOT NULL,"
                 + "address VARCHAR(100) NOT NULL,"
-                + "balance DECIMAL(10,2) NOT NULL"
+                + "balance DECIMAL(30,2) NOT NULL"
                 + ")";
         jdbcTemplate.execute(sql);
     }
@@ -59,20 +59,26 @@ public class ClientDaoImpl implements ClientDao {
 
     @Override
     public String addClient(Client client) {
-        String sql = "INSERT INTO clients (account_id, name, phone, address, balance) VALUES (?, ?, ?, ?, ?)";
-        String accountId;
-        boolean accountIdExists;
-        do {
-            // Generate a random 11-digit account ID
-            accountId = generateRandomAccountId();
-            // Check if the account ID already exists in the database
-            accountIdExists = accountIdExistsInDatabase(accountId);
-        } while (accountIdExists);
-        int numRowsAffected = jdbcTemplate.update(sql, Long.parseLong(accountId), client.getName(), client.getPhone(), client.getAddress(), client.getBalance());
-        if (numRowsAffected == 1) {
-            return "Client added successfully with account ID: " + accountId;
+        String sqlCheckPhone = "SELECT COUNT(*) FROM clients WHERE phone = ?";
+        int count = jdbcTemplate.queryForObject(sqlCheckPhone, Integer.class, client.getPhone());
+        if (count > 0) {
+            return "Failed to add client: Phone number already exists";
         } else {
-            return "Failed to add client";
+            String sqlInsertClient = "INSERT INTO clients (account_id, name, phone, address, balance) VALUES (?, ?, ?, ?, ?)";
+            String accountId;
+            boolean accountIdExists;
+            do {
+                // Generate a random 11-digit account ID
+                accountId = generateRandomAccountId();
+                // Check if the account ID already exists in the database
+                accountIdExists = accountIdExistsInDatabase(accountId);
+            } while (accountIdExists);
+            int numRowsAffected = jdbcTemplate.update(sqlInsertClient, Long.parseLong(accountId), client.getName(), client.getPhone(), client.getAddress(), client.getBalance());
+            if (numRowsAffected == 1) {
+                return "Client added successfully with account ID: " + accountId;
+            } else {
+                return "Failed to add client";
+            }
         }
     }
 
@@ -92,6 +98,20 @@ public class ClientDaoImpl implements ClientDao {
 
     @Override
     public String updateClient(Client client) {
+        // Check if there is already a client with the same phone number (if phone is not null)
+        if (client.getPhone() != null) {
+            String phoneSql = "SELECT account_id FROM clients WHERE phone = ?";
+            Long existingAccountId = null;
+            try {
+                existingAccountId = jdbcTemplate.queryForObject(phoneSql, Long.class, client.getPhone());
+            } catch (EmptyResultDataAccessException e) {
+                // No client with this phone number exists in the database
+            }
+            if (existingAccountId != null && !existingAccountId.equals(client.getAccountId())) {
+                return "Failed to update client with ID " + client.getAccountId() + ": phone number already exists for client with ID " + existingAccountId;
+            }
+        }
+
         StringBuilder sqlBuilder = new StringBuilder("UPDATE clients SET");
         List<Object> args = new ArrayList<>();
 
@@ -115,7 +135,7 @@ public class ClientDaoImpl implements ClientDao {
         // Check if any fields were updated
         if (args.isEmpty()) {
             // No fields were updated, so return a message indicating that nothing was changed
-            throw new RuntimeException("No fields were updated.");
+            return "No fields were updated.";
         }
 
         // Remove the trailing comma from the SQL statement
@@ -132,7 +152,7 @@ public class ClientDaoImpl implements ClientDao {
         if (rowsUpdated > 0) {
             return "Client with ID " + client.getAccountId() + " has been updated.";
         } else {
-            throw new RuntimeException("Failed to update client with ID " + client.getAccountId());
+            return "Failed to update client with ID " + client.getAccountId();
         }
     }
 

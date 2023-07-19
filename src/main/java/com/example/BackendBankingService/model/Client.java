@@ -1,4 +1,6 @@
-package com.example.BackendBankingServer.model;
+package com.example.BackendBankingService.model;
+
+import org.springframework.data.relational.core.mapping.Column;
 
 import java.math.BigDecimal;
 

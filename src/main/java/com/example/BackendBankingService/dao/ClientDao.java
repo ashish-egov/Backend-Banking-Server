@@ -1,7 +1,7 @@
-package com.example.BackendBankingServer.dao;
+package com.example.BackendBankingService.dao;
 
 
-import com.example.BackendBankingServer.model.Client;
+import com.example.BackendBankingService.model.Client;
 
 import java.util.List;
 

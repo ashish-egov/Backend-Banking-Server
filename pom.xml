@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>Backend-Banking-Server</artifactId>
+	<artifactId>Backend-Banking-Service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Backend Banking Server</name>
 	<description>Backend Banking Server Project</description>

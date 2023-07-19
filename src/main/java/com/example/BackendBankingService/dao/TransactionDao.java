@@ -1,8 +1,7 @@
-package com.example.BackendBankingServer.dao;
+package com.example.BackendBankingService.dao;
 
-import com.example.BackendBankingServer.model.Transaction;
+import com.example.BackendBankingService.model.Transaction;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface TransactionDao {

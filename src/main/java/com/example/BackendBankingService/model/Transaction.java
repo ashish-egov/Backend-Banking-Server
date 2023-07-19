@@ -1,4 +1,4 @@
-package com.example.BackendBankingServer.model;
+package com.example.BackendBankingService.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

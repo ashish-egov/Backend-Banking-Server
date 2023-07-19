@@ -1,4 +1,4 @@
-package com.example.BackendBankingServer;
+package com.example.BackendBankingService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

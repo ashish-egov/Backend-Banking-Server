@@ -1,6 +1,6 @@
-package com.example.BackendBankingServer.dao;
+package com.example.BackendBankingService.dao;
 
-import com.example.BackendBankingServer.model.Transaction;
+import com.example.BackendBankingService.model.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -67,13 +67,24 @@ public class TransactionDaoImpl implements TransactionDao {
     public String addTransaction(Transaction transaction) {
         transaction.setDateTime(LocalDateTime.now());
 
+        if (transaction.getType() == 'W' && transaction.getFromAccountId() == null) {
+            return "From account number is required for a withdrawal transaction";
+        }
+
+        if (transaction.getType() == 'D' && transaction.getToAccountId() == null) {
+            return "To account number is required for a deposit transaction";
+        }
         // Check if the transaction type is 'D' and the balance will be negative after the transaction
-        if (transaction.getType() == 'W' && getBalance(transaction.getFromAccountId()).compareTo(transaction.getAmount()) < 0) {
+        if ((transaction.getType() == 'W' || transaction.getType() == 'T') && getBalance(transaction.getFromAccountId()).compareTo(transaction.getAmount()) < 0) {
             return "Insufficient balance";
         }
 
         if (transaction.getType() == 'T' && transaction.getFromAccountId().equals(transaction.getToAccountId())) {
             return "Cannot transfer money to the same account";
+        }
+
+        if (transaction.getType() == 'T' && (transaction.getFromAccountId() == null || transaction.getToAccountId() == null)) {
+            return "Both account numbers are required for a transfer transaction";
         }
 
         String sql;

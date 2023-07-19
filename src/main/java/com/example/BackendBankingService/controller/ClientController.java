@@ -1,7 +1,7 @@
-package com.example.BackendBankingServer.controller;
+package com.example.BackendBankingService.controller;
 
-import com.example.BackendBankingServer.dao.ClientDao;
-import com.example.BackendBankingServer.model.Client;
+import com.example.BackendBankingService.dao.ClientDao;
+import com.example.BackendBankingService.model.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
