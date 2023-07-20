@@ -1,14 +1,27 @@
 package com.example.BackendBankingService.model;
 
+import com.example.BackendBankingService.validators.ValidAccountId;
+
+import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class Transaction {
 
     private Long transactionId;
-    private char type;
+
+    @NotNull(message = "Transaction type cannot be null")
+    @Pattern(regexp = "[D|W|T]", message = "Transaction type must be 'D', 'W', or 'T'")
+    private String type;
+
+    @NotNull(message = "Balance shouldn't be null")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Balance cannot be negative")
+    @DecimalMax(value = "9999999999999999999.0", inclusive = true, message = "Balance cannot exceed 9999999999999999999.0")
     private BigDecimal amount;
+    @ValidAccountId
     private Long fromAccountId;
+
+    @ValidAccountId
     private Long toAccountId;
     private LocalDateTime dateTime;
 
@@ -20,11 +33,11 @@ public class Transaction {
         this.transactionId = transactionId;
     }
 
-    public char getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(char type) {
+    public void setType(String type) {
         this.type = type;
     }
 

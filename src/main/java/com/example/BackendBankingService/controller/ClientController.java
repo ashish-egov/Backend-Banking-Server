@@ -6,9 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Secured("ROLE_USER")
 @RestController
@@ -34,7 +39,16 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addClient(@RequestBody Client client) {
+    public ResponseEntity<?> addClient(@Valid @RequestBody Client client, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // If there are validation errors, create a custom error response
+            Map<String, String> errors = new HashMap<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errors.put(error.getField(), error.getDefaultMessage());
+            }
+            return ResponseEntity.badRequest().body(errors);
+        }
+
         String result = clientDao.addClient(client);
         HttpStatus status = HttpStatus.CREATED;
         if (result.startsWith("Failed")) {
@@ -44,7 +58,7 @@ public class ClientController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> updateClient(@PathVariable Long id, @RequestBody Client client) {
+    public ResponseEntity<String> updateClient(@PathVariable Long id,@RequestBody Client client) {
         Client existingClient = clientDao.getClientById(id);
         if (existingClient != null) {
             client.setAccountId(id);

@@ -42,7 +42,7 @@ public class TransactionDaoImpl implements TransactionDao {
             transaction.setFromAccountId(rs.getLong("from_account_id"));
             transaction.setToAccountId(rs.getLong("to_account_id"));
             transaction.setDateTime(rs.getTimestamp("date_time").toLocalDateTime());
-            transaction.setType(rs.getString("type").charAt(0));
+            transaction.setType(rs.getString("type"));
             return transaction;
         });
     }
@@ -57,7 +57,7 @@ public class TransactionDaoImpl implements TransactionDao {
             transaction.setFromAccountId(rs.getLong("from_account_id"));
             transaction.setToAccountId(rs.getLong("to_account_id"));
             transaction.setDateTime(rs.getTimestamp("date_time").toLocalDateTime());
-            transaction.setType(rs.getString("type").charAt(0));
+            transaction.setType(rs.getString("type"));
             return transaction;
         });
     }
@@ -67,29 +67,29 @@ public class TransactionDaoImpl implements TransactionDao {
     public String addTransaction(Transaction transaction) {
         transaction.setDateTime(LocalDateTime.now());
 
-        if (transaction.getType() == 'W' && transaction.getFromAccountId() == null) {
+        if (transaction.getType().equals("W") && transaction.getFromAccountId() == null) {
             return "From account number is required for a withdrawal transaction";
         }
 
-        if (transaction.getType() == 'D' && transaction.getToAccountId() == null) {
+        if (transaction.getType().equals("D") && transaction.getToAccountId() == null) {
             return "To account number is required for a deposit transaction";
         }
         // Check if the transaction type is 'D' and the balance will be negative after the transaction
-        if ((transaction.getType() == 'W' || transaction.getType() == 'T') && getBalance(transaction.getFromAccountId()).compareTo(transaction.getAmount()) < 0) {
+        if ((transaction.getType().equals("W") || transaction.getType().equals("W")) && getBalance(transaction.getFromAccountId()).compareTo(transaction.getAmount()) < 0) {
             return "Insufficient balance";
         }
 
-        if (transaction.getType() == 'T' && transaction.getFromAccountId().equals(transaction.getToAccountId())) {
+        if (transaction.getType().equals("T") && transaction.getFromAccountId().equals(transaction.getToAccountId())) {
             return "Cannot transfer money to the same account";
         }
 
-        if (transaction.getType() == 'T' && (transaction.getFromAccountId() == null || transaction.getToAccountId() == null)) {
+        if (transaction.getType().equals("T") && (transaction.getFromAccountId() == null || transaction.getToAccountId() == null)) {
             return "Both account numbers are required for a transfer transaction";
         }
 
         String sql;
         Object[] params;
-        if (transaction.getType() == 'D') {
+        if (transaction.getType().equals("D")) {
             // Deposit transaction, the fromAccountId should be null
             sql = "INSERT INTO transactions (type, amount, to_account_id, date_time) VALUES (?, ?, ?, ?)";
             params = new Object[]{transaction.getType(), transaction.getAmount(), transaction.getToAccountId(), transaction.getDateTime()};
@@ -100,7 +100,7 @@ public class TransactionDaoImpl implements TransactionDao {
         }
         jdbcTemplate.update(sql, params);
 
-        if (transaction.getType() == 'T') {
+        if (transaction.getType().equals("T")) {
             // Update the balances of both accounts for a transfer transaction
             BigDecimal amount = transaction.getAmount();
             Long fromAccountId = transaction.getFromAccountId();
@@ -113,8 +113,8 @@ public class TransactionDaoImpl implements TransactionDao {
         } else {
             // Update the balance of the account for a credit or debit transaction
             BigDecimal amount = transaction.getAmount();
-            Long accountId = transaction.getType() == 'W' ?transaction.getFromAccountId() : transaction.getToAccountId();
-            String updateSql = "UPDATE clients SET balance = balance " + (transaction.getType() == 'W' ? "- ?" : "+ ?") + " WHERE account_id = ?";
+            Long accountId = transaction.getType().equals("W") ?transaction.getFromAccountId() : transaction.getToAccountId();
+            String updateSql = "UPDATE clients SET balance = balance " + (transaction.getType().equals("W") ? "- ?" : "+ ?") + " WHERE account_id = ?";
             jdbcTemplate.update(updateSql, amount, accountId);
         }
 
