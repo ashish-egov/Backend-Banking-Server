@@ -1,5 +1,6 @@
 package com.example.BackendBankingService.dao;
 
+import com.example.BackendBankingService.elasticConfig.ElasticsearchService;
 import com.example.BackendBankingService.model.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -7,12 +8,16 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public class TransactionDaoImpl implements TransactionDao {
+
+    @Autowired
+    private ElasticsearchService elasticsearchService;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -64,7 +69,7 @@ public class TransactionDaoImpl implements TransactionDao {
 
     @Transactional
     @Override
-    public String addTransaction(Transaction transaction) {
+    public String addTransaction(Transaction transaction) throws IOException {
         transaction.setDateTime(LocalDateTime.now());
 
         if (transaction.getType().equals("W") && transaction.getFromAccountId() == null) {

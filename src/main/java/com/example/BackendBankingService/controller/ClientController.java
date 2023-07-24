@@ -1,6 +1,7 @@
 package com.example.BackendBankingService.controller;
 
 import com.example.BackendBankingService.dao.ClientDao;
+import com.example.BackendBankingService.elasticConfig.ElasticsearchService;
 import com.example.BackendBankingService.model.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +41,7 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addClient(@Valid @RequestBody Client client, BindingResult bindingResult) {
+    public ResponseEntity<?> addClient(@Valid @RequestBody Client client, BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()) {
             // If there are validation errors, create a custom error response
             Map<String, String> errors = new HashMap<>();

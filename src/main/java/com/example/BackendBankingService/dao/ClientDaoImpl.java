@@ -1,5 +1,6 @@
 package com.example.BackendBankingService.dao;
 
+import com.example.BackendBankingService.elasticConfig.ElasticsearchService;
 import com.example.BackendBankingService.model.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -7,12 +8,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 @Repository
 public class ClientDaoImpl implements ClientDao {
+
+    @Autowired
+    private ElasticsearchService elasticsearchService;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -58,7 +63,7 @@ public class ClientDaoImpl implements ClientDao {
     }
 
     @Override
-    public String addClient(Client client) {
+    public String addClient(Client client) throws IOException {
         String sqlCheckPhone = "SELECT COUNT(*) FROM clients WHERE phone = ?";
         int count = jdbcTemplate.queryForObject(sqlCheckPhone, Integer.class, client.getPhone());
         if (count > 0) {
@@ -75,6 +80,8 @@ public class ClientDaoImpl implements ClientDao {
             } while (accountIdExists);
             int numRowsAffected = jdbcTemplate.update(sqlInsertClient, Long.parseLong(accountId), client.getName(), client.getPhone(), client.getAddress(), client.getBalance());
             if (numRowsAffected == 1) {
+                client.setAccountId(Long.parseLong(accountId));
+                elasticsearchService.addClient(client);
                 return "Client added successfully with account ID: " + accountId;
             } else {
                 return "Failed to add client";

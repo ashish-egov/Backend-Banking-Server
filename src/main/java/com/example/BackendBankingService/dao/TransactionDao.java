@@ -2,6 +2,7 @@ package com.example.BackendBankingService.dao;
 
 import com.example.BackendBankingService.model.Transaction;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface TransactionDao {
@@ -10,5 +11,5 @@ public interface TransactionDao {
 
     List<Transaction> getTransactionsByAccountId(Long accountId);
 
-    String addTransaction(Transaction transaction);
+    String addTransaction(Transaction transaction) throws IOException;
 }

@@ -1,6 +1,7 @@
 package com.example.BackendBankingService.controller;
 
 import com.example.BackendBankingService.dao.TransactionDao;
+import com.example.BackendBankingService.elasticConfig.ElasticsearchService;
 import com.example.BackendBankingService.model.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,9 @@ public class TransactionController {
     @Autowired
     private TransactionDao transactionDao;
 
+    @Autowired
+    private ElasticsearchService elasticsearchService;
+
     @GetMapping
     public List<Transaction> getAllTransactions() {
         return transactionDao.getAllTransactions();
@@ -34,7 +39,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addTransaction(@Valid @RequestBody Transaction transaction, BindingResult bindingResult) {
+    public ResponseEntity<?> addTransaction(@Valid @RequestBody Transaction transaction, BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()) {
             // If there are validation errors, create a custom error response
             Map<String, String> errors = new HashMap<>();

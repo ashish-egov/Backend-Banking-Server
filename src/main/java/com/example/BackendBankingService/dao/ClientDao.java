@@ -3,6 +3,7 @@ package com.example.BackendBankingService.dao;
 
 import com.example.BackendBankingService.model.Client;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ClientDao {
@@ -11,7 +12,7 @@ public interface ClientDao {
 
     Client getClientById(Long id);
 
-    String addClient(Client client);
+    String addClient(Client client) throws IOException;
 
     String updateClient(Client client);
 
